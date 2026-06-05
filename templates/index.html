@@ -1,0 +1,126 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Spam Detector</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;background:#f6f7fb;margin:0;padding:0}
+    .wrap{max-width:980px;margin:40px auto;padding:0 16px}
+    h1{margin:0 0 6px;text-align:center}
+    .sub{margin:0 0 22px;text-align:center;color:#555}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    .card{background:#fff;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,.06);padding:18px}
+    textarea{width:100%;height:170px;border-radius:10px;border:1px solid #ddd;padding:12px;font-size:14px;resize:vertical}
+    .row{margin-top:12px}
+    .radio{margin:10px 0;color:#333}
+    .btns{display:flex;gap:10px;margin-top:14px}
+    button{border:0;border-radius:10px;padding:10px 14px;cursor:pointer}
+    .primary{background:#1f6feb;color:#fff}
+    .gray{background:#e9ecef}
+    .resultBox{border-radius:12px;padding:16px;border-left:6px solid #bbb;background:#f2f3f5}
+    .spam{border-left-color:#e55353;background:#fdecec}
+    .ham{border-left-color:#2fb344;background:#eaf7ee}
+    .label{font-size:28px;font-weight:bold;margin:0 0 8px}
+    .meta{color:#444;margin:6px 0}
+    .barWrap{background:#eef2ff;border-radius:999px;overflow:hidden;height:12px;margin-top:10px}
+    .bar{height:12px;background:#1f6feb;width:0%}
+    .err{color:#c00;margin-top:10px}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Spam Detector</h1>
+    <p class="sub">Paste a message and choose a model to classify it as HAM or SPAM</p>
+
+    <div class="grid">
+      <!-- Left -->
+      <div class="card">
+        <h3 style="margin-top:0">Message Input</h3>
+
+        <form method="POST" id="form">
+          <textarea name="message" id="message" placeholder="Type or paste your message here...">{{ msg or "" }}</textarea>
+
+          <div class="row">
+            <div style="font-weight:bold;margin-bottom:6px">Choose Model:</div>
+
+            <!-- فقط مودلين -->
+            <div class="radio">
+              <label>
+                <input type="radio" name="model_choice" value="nb" {% if model_choice=="nb" %}checked{% endif %}>
+                Model 1 (Naive Bayes)
+              </label>
+            </div>
+
+            <div class="radio">
+              <label>
+                <input type="radio" name="model_choice" value="svm" {% if model_choice=="svm" %}checked{% endif %}>
+                Model 2 (SVM - Recommended)
+              </label>
+            </div>
+          </div>
+
+          <div class="btns">
+            <button class="primary" type="submit">Predict</button>
+            <button class="gray" type="button" onclick="clearAll()">Clear</button>
+            <button class="gray" type="button" onclick="useExample()">Use Example</button>
+          </div>
+
+          {% if error %}
+            <div class="err">{{ error }}</div>
+          {% endif %}
+        </form>
+      </div>
+
+      <!-- Right -->
+      <div class="card">
+        <h3 style="margin-top:0">Result</h3>
+
+        {% if result %}
+          <div class="resultBox {% if result=='SPAM' %}spam{% else %}ham{% endif %}">
+            <p class="label">{{ result }}</p>
+
+            {% if result == "SPAM" %}
+              <div class="meta">Potentially malicious / unwanted message.</div>
+            {% else %}
+              <div class="meta">Looks like a normal message.</div>
+            {% endif %}
+
+            {% if model_used %}
+              <div class="meta"><b>Model Used:</b> {{ model_used }}</div>
+            {% endif %}
+          </div>
+
+          {% if confidence is not none %}
+            <div class="row">
+              <div class="meta"><b>Confidence (approx):</b> {{ confidence }}%</div>
+
+<div class="barWrap">
+                <div class="bar" style="width: {{ confidence }}%"></div>
+              </div>
+            </div>
+          {% endif %}
+        {% else %}
+          <div class="resultBox">
+            <div class="meta">Enter a message and click Predict to see the result.</div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function clearAll(){
+      document.getElementById("message").value = "";
+    }
+
+    function useExample(){
+      // مثال Spam 
+      document.getElementById("message").value =
+        "CONGRATULATIONS! You have WON a FREE prize. Click here now: http://free-prize.com";
+    }
+  </script>
+</body>
+</html>
